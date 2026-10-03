@@ -1,41 +1,49 @@
-
-version: '1.1'
-
 services:
-  # 1. EVM Blockchain Node (Anvil)
+
   anvil:
     image: ghcr.io/foundry-rs/foundry:latest
     container_name: anvil_node
-    command: anvil --host 0.0.0.0 --port 8545
+
+    entrypoint: ["anvil"]
+
+    command:
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8545"
+
     ports:
       - "8545:8545"
+
     networks:
       - blockchain-ipfs-network
+
     restart: unless-stopped
 
-  # 2. IPFS Storage Node (Kubo)
   ipfs:
     image: ipfs/kubo:latest
     container_name: ipfs_node
+
     environment:
       - IPFS_PATH=/data/ipfs
+
     ports:
-      - "4001:4001"          # P2P Swarm Port (TCP)
-      - "4001:4001/udp"      # P2P Swarm Port (UDP)
-      - "8080:8080"          # IPFS Gateway (Akses File via Browser)
-      - "5001:5001"          # IPFS API Control & Web UI
+      - "4001:4001"
+      - "4001:4001/udp"
+      - "8080:8080"
+      - "5001:5001"
+
     volumes:
-      # Docker Named Volume (Murni dikelola Docker Engine)
       - ipfs_production_data:/data/ipfs
+
     networks:
       - blockchain-ipfs-network
+
     restart: unless-stopped
 
-# Volume terisolasi untuk data IPFS (Persistent)
 volumes:
   ipfs_production_data:
 
-# Jaringan internal antar-kontainer
 networks:
   blockchain-ipfs-network:
     driver: bridge
